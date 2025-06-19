@@ -1,4 +1,4 @@
-// Lista de frases provocadoras que aparecem aleatoriamente no ecrã de Game Over
+// Lista de frases provocadoras que serão escolhidas aleatoriamente para o ecrã de Game Over
 const SUBTITULOS_GAMEOVER = [
   "Just close the game at this point",
   "Maybe Pong is more your speed",
@@ -16,14 +16,14 @@ const SUBTITULOS_GAMEOVER = [
 export class GameOverScene extends Phaser.Scene {
   constructor() {
     super('GameOverScene');
-    this.hue = 0;           // valor de matiz HSL para o contorno arco-íris
-    this.contorno = null;   // referência para o objeto gráfico do contorno
+    this.hue = 0;           // Valor da tonalidade (HSL) para o contorno arco-íris
+    this.contorno = null;   // Referência ao objeto gráfico do contorno
   }
 
   create() {
     const { width, height } = this.scale;
 
-    // Criação da textura "bola", usada para partículas no fundo (garante que existe)
+    // Garante que a textura "bola" existe (usada nas partículas)
     if (!this.textures.exists('bola')) {
       const gfx = this.add.graphics();
       gfx.fillStyle(0xffffff, 1);
@@ -32,7 +32,7 @@ export class GameOverScene extends Phaser.Scene {
       gfx.destroy();
     }
 
-    // Adiciona partículas suaves a flutuar no fundo (efeito de ambiente)
+    // Efeito de partículas no fundo (ambiente suave)
     this.add.particles(0, 0, 'bola', {
       x: { min: 0, max: width },
       y: { min: 0, max: height },
@@ -45,11 +45,11 @@ export class GameOverScene extends Phaser.Scene {
       blendMode: 'ADD'
     });
 
-    // Título principal "GAME OVER" 
+    // Texto principal "GAME OVER"
     const titulo = this.add.text(width / 2, height / 3.2, 'GAME OVER', {
       fontSize: '52px',
-      fill: '#ff3333',             // vermelho vibrante
-      fontFamily: 'Courier New',   // estilo mais "sério"
+      fill: '#ff3333',
+      fontFamily: 'Courier New',
       stroke: '#ffffff',
       strokeThickness: 2,
       shadow: {
@@ -61,7 +61,7 @@ export class GameOverScene extends Phaser.Scene {
       }
     }).setOrigin(0.5);
 
-    // Animação de "flutuação" suave no título
+    // Animação de flutuação no título
     this.tweens.add({
       targets: titulo,
       y: titulo.y - 10,
@@ -71,7 +71,7 @@ export class GameOverScene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
 
-    // Subtítulo aleatório provocador com sombra e estilo cursivo
+    // Frase provocadora aleatória como subtítulo
     const frase = Phaser.Utils.Array.GetRandom(SUBTITULOS_GAMEOVER);
     const subtitulo = this.add.text(width / 2, height / 2.1, frase, {
       fontSize: '22px',
@@ -87,9 +87,9 @@ export class GameOverScene extends Phaser.Scene {
       }
     }).setOrigin(0.5);
 
-    // Animação de movimento flutuante no subtítulo também
+    // Animação de movimento suave no subtítulo
     this.tweens.add({
-      targets: subtitulo,
+      targets: subtitulo, 
       y: subtitulo.y + 10,
       duration: 1600,
       yoyo: true,
@@ -97,39 +97,62 @@ export class GameOverScene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
 
-    // Botão "RECOMEÇAR" com animação de fade
-    const botao = this.add.text(width / 2, height / 1.7, 'RECOMEÇAR', {
+    // Botão "RECOMEÇAR" que reinicia o jogo
+    const botaoRecomecar = this.add.text(width / 2, height / 1.7, 'RECOMEÇAR', {
       fontSize: '28px',
       fill: '#ffffff',
       fontFamily: 'Courier New'
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    // Animação de piscar (fade in/out) no botão
+    // Animação de piscar no botão de recomeçar
     this.tweens.add({
-      targets: botao,
+      targets: botaoRecomecar,
       alpha: { from: 1, to: 0.5 },
       duration: 600,
       yoyo: true,
       repeat: -1
     });
 
-    // Interações com o botão
-    botao.on('pointerover', () => botao.setStyle({ fill: '#dddddd' }));
-    botao.on('pointerout', () => botao.setStyle({ fill: '#ffffff' }));
-    botao.on('pointerdown', () => {
-      this.scene.start('MainScene');  // reinicia o jogo
+    // Eventos de interação do botão "RECOMEÇAR"
+    botaoRecomecar.on('pointerover', () => botaoRecomecar.setStyle({ fill: '#dddddd' }));
+    botaoRecomecar.on('pointerout', () => botaoRecomecar.setStyle({ fill: '#ffffff' }));
+    botaoRecomecar.on('pointerdown', () => {
+      this.scene.start('MainScene');
     });
 
-    // Criação do contorno animado (gráfico vazio para desenhar depois)
+    // Botão adicional para voltar ao Menu principal
+    const botaoMenu = this.add.text(width / 2, height / 1.5, 'MENU', {
+      fontSize: '24px',
+      fill: '#ffff99',
+      fontFamily: 'Courier New'
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    // Animação de piscar no botão do menu
+    this.tweens.add({
+      targets: botaoMenu,
+      alpha: { from: 1, to: 0.6 },
+      duration: 600,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // Eventos de interação do botão "MENU"
+    botaoMenu.on('pointerover', () => botaoMenu.setStyle({ fill: '#ffffff' }));
+    botaoMenu.on('pointerout', () => botaoMenu.setStyle({ fill: '#ffff99' }));
+    botaoMenu.on('pointerdown', () => {
+      this.scene.start('MenuScene');
+    });
+
+    // Criação do objeto gráfico para o contorno
     this.contorno = this.add.graphics();
   }
 
   update() {
-    // Animação do contorno arco-íris (ciclo de matiz)
+    // Atualiza a cor do contorno com base no ciclo HSL
     this.hue = (this.hue + 1) % 360;
     const cor = Phaser.Display.Color.HSLToColor(this.hue / 360, 1, 0.5).color;
 
-    // Atualiza o gráfico do contorno com a nova cor
+    // Redesenha o contorno com a nova cor
     this.contorno.clear();
     this.contorno.lineStyle(4, cor);
     this.contorno.strokeRect(0, 0, this.scale.width, this.scale.height);
